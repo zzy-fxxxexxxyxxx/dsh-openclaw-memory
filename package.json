@@ -5,7 +5,7 @@
   "type": "module",
   "repository": {
     "type": "git",
-    "url": "https://github.com/zzy-fxxxexxxyxxx/dsh-openclaw-memory"
+    "url": "git+https://github.com/zzy-fxxxexxxyxxx/dsh-openclaw-memory.git"
   },
   "bugs": {
     "url": "https://github.com/zzy-fxxxexxxyxxx/dsh-openclaw-memory/issues"
