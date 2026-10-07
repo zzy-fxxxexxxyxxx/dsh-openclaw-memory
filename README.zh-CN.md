@@ -128,6 +128,21 @@ npm pack --dry-run
 4. GitHub 仓库和 npm 包元数据；
 5. 不要把凭据、profile backup 或真实 memory 文件提交进仓库。
 
+后续版本发布流程：
+
+1. 修改 `package.json` 的版本号并提交；
+2. 创建与版本一致的 tag，例如 `git tag v0.1.1`；
+3. 推送 tag：`git push origin v0.1.1`；
+4. GitHub Actions 的 `.github/workflows/publish.yml` 会检查 tag 与版本号一致，运行测试、语法检查和打包预览；
+5. 检查通过后，使用 npm Trusted Publishing/OIDC 和 provenance 直接执行 `npm publish`。
+
+发布 workflow 只响应 `v*` tag，不使用长期 npm token。npm Trusted Publisher 需要配置为：
+
+- GitHub 用户：`zzy-fxxxexxxyxxx`；
+- 仓库：`dsh-openclaw-memory`；
+- workflow 文件：`publish.yml`；
+- Publishing access：允许 `npm publish`。
+
 ## 许可证
 
 MIT

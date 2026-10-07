@@ -71,9 +71,11 @@ For local development without installing DSH globally, link or install the match
 
 1. Review the canonical root and privacy settings in `cordis.patch.yml`.
 2. Build and test this package in an isolated checkout.
-3. Replace the placeholder `repository` and `bugs` URLs in `package.json` with the chosen GitHub repository.
-4. Create a GitHub repository, review the diff, and push only after explicit authorization.
-5. Run `npm pack --dry-run` and publish to npm only after explicit authorization.
-6. Install and enable the bundle in DSH only after production wiring has been separately confirmed.
+3. Run `npm pack --dry-run` and review the package contents.
+4. For a release, update `package.json` and commit the version bump.
+5. Create and push a matching version tag, for example `git tag v0.1.1 && git push origin v0.1.1`.
+6. `.github/workflows/publish.yml` verifies the tag, runs the test and syntax checks, previews the package, and publishes with npm Trusted Publishing/OIDC and provenance.
 
-No production profile, OpenClaw configuration, DSH service, Git repository, or npm registry is modified by the development workflow itself.
+The publish workflow runs only for `v*` tags. It does not use a long-lived npm token. Configure npm Trusted Publishing for the `zzy-fxxxexxxyxxx/dsh-openclaw-memory` repository and the `publish.yml` workflow before creating a release tag.
+
+No production profile, OpenClaw configuration, DSH service, or real memory file is modified by the package release workflow itself.

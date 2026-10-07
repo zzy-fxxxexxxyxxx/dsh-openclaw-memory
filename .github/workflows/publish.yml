@@ -1,0 +1,67 @@
+name: Publish
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+permissions:
+  contents: read
+  id-token: write
+
+concurrency:
+  group: npm-publish
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    name: Test and publish npm package
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Check out tagged source
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          registry-url: https://registry.npmjs.org
+
+      - name: Upgrade npm for Trusted Publishing
+        run: npm install --global npm@^11.5.1
+
+      - name: Confirm npm CLI version
+        run: npm --version
+
+      - name: Install dependencies
+        run: npm install --ignore-scripts --no-audit --no-fund
+
+      - name: Verify tag matches package version
+        shell: bash
+        run: |
+          set -euo pipefail
+          tag="${GITHUB_REF_NAME#v}"
+          version="$(node -p "require('./package.json').version")"
+          if [[ "$tag" != "$version" ]]; then
+            echo "Tag v$tag does not match package.json version $version" >&2
+            exit 1
+          fi
+
+      - name: Run tests
+        run: npm test
+
+      - name: Check JavaScript syntax
+        run: |
+          node --check index.js
+          node --check client.js
+          node --check remote.js
+          node --check typert.host.js
+
+      - name: Inspect package contents
+        run: npm pack --dry-run
+
+      - name: Publish with npm provenance
+        run: npm publish --provenance --access public
