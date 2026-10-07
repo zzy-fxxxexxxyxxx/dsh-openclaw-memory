@@ -1,0 +1,28 @@
+{
+  "zh": {
+    "title": "共享记忆",
+    "description": "查看和编辑与 OpenClaw 共用的人格与记忆文件",
+    "guideTitle": "共享记忆",
+    "guideDescription": "打开 OpenClaw 共用 workspace 的记忆文件",
+    "refresh": "刷新",
+    "save": "保存",
+    "saved": "已保存",
+    "readOnly": "只读文件",
+    "selectFile": "选择一个文件",
+    "conflict": "文件已被其他进程修改，请刷新后再保存",
+    "error": "共享记忆不可用"
+  },
+  "en": {
+    "title": "Shared Memory",
+    "description": "View and edit persona and memory files shared with OpenClaw",
+    "guideTitle": "Shared Memory",
+    "guideDescription": "Open the OpenClaw shared workspace memory files",
+    "refresh": "Refresh",
+    "save": "Save",
+    "saved": "Saved",
+    "readOnly": "Read-only file",
+    "selectFile": "Select a file",
+    "conflict": "The file changed elsewhere; refresh before saving",
+    "error": "Shared memory is unavailable"
+  }
+}

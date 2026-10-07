@@ -1,0 +1,16 @@
+- insert:
+    - id: openclaw-memory
+      name: dsh-openclaw-memory
+      config:
+        root: /home/sunrise/.openclaw/workspace
+        contextInjection: continuation-skip
+        bootstrapMaxChars: 20000
+        bootstrapTotalMaxChars: 60000
+        userMaxChars: 4000
+        dailyMemoryDays: 2
+        dailyFileMaxBytes: 16384
+        dailyFileMaxChars: 1200
+        dailyTotalMaxChars: 2800
+        timeZone: Asia/Shanghai
+        includeDailyStartup: true
+        includeCredentials: false

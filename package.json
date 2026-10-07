@@ -1,0 +1,50 @@
+{
+  "name": "dsh-openclaw-memory",
+  "version": "0.1.0",
+  "description": "OpenClaw-compatible shared persona and memory for DeepSeek Harness",
+  "type": "module",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/zzy-fxxxexxxyxxx/dsh-openclaw-memory"
+  },
+  "bugs": {
+    "url": "https://github.com/zzy-fxxxexxxyxxx/dsh-openclaw-memory/issues"
+  },
+  "homepage": "https://github.com/zzy-fxxxexxxyxxx/dsh-openclaw-memory#readme",
+  "readme": "README.md",
+  "main": "index.js",
+  "exports": {
+    ".": "./index.js",
+    "./memory-core": "./memory-core.js",
+    "./client": "./client.js",
+    "./remote": "./remote.js",
+    "./typert": "./typert.host.js",
+    "./package.json": "./package.json"
+  },
+  "files": ["*.js", "*.yml", "locale/*.json", "README.md", "README.zh-CN.md"],
+  "dsh": {
+    "bundle": { "patch": "./cordis.patch.yml" },
+    "client": {
+      "platform": "web",
+      "external": ["@deepseek-ai/dsh-api-gateway/client"],
+      "inject": ["@deepseek-ai/dsh-api-gateway", "@deepseek-ai/dsh-client-ui-sidebar-right", "@deepseek-ai/dsh-client-locale"]
+    }
+  },
+  "scripts": {
+    "test": "node --test test/*.test.js"
+  },
+  "dependencies": {
+    "zod": "^4.4.3",
+    "@deepseek-ai/schemastery": "~3.18.4",
+    "@deepseek-ai/dsh-typert-protocol": "0.2.0-rc.2",
+    "@deepseek-ai/dsh-tools": "0.2.0-rc.2"
+  },
+  "peerDependencies": {
+    "@deepseek-ai/cordis": ">=4.0.4",
+    "@deepseek-ai/dsh-system-prompt": ">=0.2.0-rc.2",
+    "@deepseek-ai/dsh-tools": ">=0.2.0-rc.2",
+    "@deepseek-ai/dsh-typert-protocol": ">=0.2.0-rc.2"
+  },
+  "license": "MIT",
+  "publishConfig": { "access": "public" }
+}
