@@ -1,6 +1,6 @@
 {
   "name": "dsh-openclaw-memory",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "OpenClaw-compatible shared persona and memory for DeepSeek Harness",
   "type": "module",
   "repository": {

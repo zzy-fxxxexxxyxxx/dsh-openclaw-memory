@@ -15,7 +15,7 @@ The plugin provides:
 - recent daily context from `memory/YYYY-MM-DD.md` and up to four newest `memory/YYYY-MM-DD-*.md` files per day;
 - bounded keyword retrieval over Markdown memory files;
 - a standard DSH Typert Remote service for listing, reading, searching, conflict-safe editing, live configuration, and exact context preview;
-- a DSH web sidebar tab for configuration, safe Markdown browsing/editing, and per-file truncation inspection; the injection preview has its own scroll area and independently collapsible file blocks. The editor also has a source/preview toggle backed by DSH's native Markdown renderer, previews unsaved text, and only the Save action writes;
+- a DSH web sidebar tab for configuration, safe Markdown browsing/editing, and per-file truncation inspection; the injection preview has its own scroll area and explicit expand/collapse indicators. Config has its own scroll region, and the editor shows top-level Markdown files separately from a collapsible `memory/` tree. The editor also has a source/preview toggle backed by DSH's native Markdown renderer, previews unsaved text, and only the Save action writes;
 
 The default context policy is `continuation-skip`: the same snapshot is returned for an agent until a source file changes, and DSH runtime-context projection deduplicates unchanged durable snapshots.
 
