@@ -1,14 +1,17 @@
 import test from 'node:test';
+import { Config } from '../index.js';
 import assert from 'node:assert/strict';
 import { mkdtemp, mkdir, readFile, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
 import {
+  buildContextPreviewSync,
   buildContextSnapshot,
   buildContextSnapshotSync,
   isCredentialPath,
   listMemoryFiles,
   loadBootstrap,
+  normalizeConfig,
   loadStartupDaily,
   readMemoryFile,
   resolveInsideRoot,
@@ -16,6 +19,20 @@ import {
   searchMemory,
   writeMemoryFile,
 } from '../memory-core.js';
+
+test('all Sidebar configuration fields are volatile and live-validatable', () => {
+  const parsed = Config['~standard'].validate({ dailyMemoryDays: 0 });
+  assert.equal(parsed.issues, undefined);
+  assert.equal(parsed.value.root.get(), '/home/sunrise/.openclaw/workspace');
+  assert.equal(parsed.value.dailyMemoryDays.get(), 0);
+  assert.deepEqual(parsed.value.bootstrapFiles.get(), ['AGENTS.md', 'SOUL.md', 'IDENTITY.md', 'USER.md', 'BOOTSTRAP.md', 'MEMORY.md']);
+  const subset = Config['~standard'].validate({ bootstrapFiles: ['MEMORY.md'] });
+  assert.equal(subset.issues, undefined);
+  assert.deepEqual(subset.value.bootstrapFiles.get(), ['MEMORY.md']);
+  const json = Config.toJSON();
+  const fields = Object.values(json.refs).filter((ref) => ref.meta?.volatile);
+  assert.equal(fields.length, 14);
+});
 
 async function fixture() {
   const root = await mkdtemp(path.join(tmpdir(), 'dsh-openclaw-memory-'));
@@ -29,6 +46,23 @@ async function fixture() {
   await writeFile(path.join(root, 'memory', 'part-of-account.md'), 'secret password');
   return root;
 }
+
+test('per-file bootstrap selection controls context without hiding files', async () => {
+  const root = await fixture();
+  const config = { root, bootstrapFiles: ['MEMORY.md'], includeDailyStartup: false };
+  const bootstrap = await loadBootstrap(root, config);
+  assert.deepEqual(bootstrap.map((file) => file.path), ['MEMORY.md']);
+  const snapshot = buildContextSnapshotSync(root, config);
+  assert.match(snapshot, /stable memory about SearXNG/);
+  assert.doesNotMatch(snapshot, /agent rules/);
+  assert.ok((await listMemoryFiles(root, config)).includes('AGENTS.md'));
+  assert.equal(buildContextSnapshotSync(root, { ...config, bootstrapFiles: [], includeDailyStartup: false }), '');
+});
+
+test('bootstrap selection rejects unknown and duplicate filenames', () => {
+  assert.throws(() => normalizeConfig({ bootstrapFiles: ['AGENTS.md', 'AGENTS.md'] }), /unique known/);
+  assert.throws(() => normalizeConfig({ bootstrapFiles: ['notes.md'] }), /unique known/);
+});
 
 test('bounds bootstrap and daily startup independently', async () => {
   const root = await fixture();
@@ -62,6 +96,19 @@ test('startup daily context includes date-slugged notes like OpenClaw', async ()
   assert.deepEqual(daily.map((item) => item.path), ['memory/2026-10-07.md', 'memory/2026-10-07-project.md']);
 });
 
+test('preview reports exact injected blocks and truncation metadata', async () => {
+  const root = await fixture();
+  await writeFile(path.join(root, 'AGENTS.md'), 'x'.repeat(100));
+  const preview = buildContextPreviewSync(root, { root, bootstrapMaxChars: 20, bootstrapTotalMaxChars: 60, dailyMemoryDays: 1, dailyFileMaxChars: 180, dailyTotalMaxChars: 180 }, new Date('2026-10-07T06:00:00Z'));
+  const agents = preview.bootstrap.find((file) => file.path === 'AGENTS.md');
+  assert.equal(agents.sourceChars, 100);
+  assert.equal(agents.truncated, true);
+  assert.equal(agents.injectedChars, agents.block.length);
+  assert.equal(preview.daily[0].injectedChars <= 180, true);
+  assert.equal(preview.snapshotChars, preview.snapshot.length);
+  assert.equal(preview.snapshot, buildContextSnapshotSync(root, { root, bootstrapMaxChars: 20, bootstrapTotalMaxChars: 60, dailyMemoryDays: 1, dailyFileMaxChars: 180, dailyTotalMaxChars: 180 }, new Date('2026-10-07T06:00:00Z')));
+});
+
 test('continuation snapshot is stable and refreshes from changed files', async () => {
   const root = await fixture();
   const config = { root, dailyMemoryDays: 1 };
@@ -82,6 +129,8 @@ test('excludes credential paths and JSON from default memory listing', async () 
   assert.ok(!files.includes('memory/part-of-account.md'));
   assert.equal(isCredentialPath('memory/part-of-account.md'), true);
   assert.equal(isCredentialPath('memory/notes.md'), false);
+  const withCredentials = await listMemoryFiles(root, { includeCredentials: true });
+  assert.ok(withCredentials.includes('memory/part-of-account.md'));
 });
 
 test('search returns bounded Markdown excerpts', async () => {

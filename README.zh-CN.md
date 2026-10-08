@@ -8,7 +8,9 @@
 
 ## 功能
 
-- 读取 OpenClaw bootstrap 文件：
+- 每个 bootstrap 候选文件都可以在 Sidebar 中独立控制是否自动注入；全部关闭时不会自动注入 bootstrap，但文件浏览、源码/预览、编辑和搜索仍然可用。
+- `includeDailyStartup` 独立控制启动 daily memory；若要让自动上下文完全为空，请关闭全部 bootstrap 文件并关闭该开关。
+- `bootstrapFiles` 默认包含以下六个候选文件；仅存在且可读、并且开关已开启的文件会进入上下文：
   - `AGENTS.md`
   - `SOUL.md`
   - `IDENTITY.md`
@@ -28,6 +30,10 @@
 - 提供 `openclaw_memory_search` 有界 Markdown 检索工具。
 - 提供官方 DSH Typert Remote：列出、读取、搜索和带乐观并发保护的写入。
 - 提供 DSH Web Sidebar：安全浏览和编辑共享 Markdown 文件。
+- 文件编辑器支持“源码 / 预览”切换：预览复用 DSH 内置 Markdown 渲染器，未保存内容也可直接预览，保存仍只由“保存”按钮执行。
+- 在 Sidebar 中编辑全部共享记忆配置，并预览**实际会注入的上下文**、每个文件的源大小、预算、注入字符数和截断状态；预览中的总文件列表支持独立滚动，每个文件块也可以单独展开或收起。
+- 配置通过 DSH `Settings`/`ConfigEditor` 写回 profile，并由 live Loader 热生效；配置冲突会被拒绝而不会覆盖别人的修改。
+- 预览中的文件按钮会直接跳转到同一 Sidebar 的编辑器。
 
 ## 隐私与安全边界
 
@@ -48,6 +54,13 @@
 ```yaml
 root: /home/sunrise/.openclaw/workspace
 contextInjection: continuation-skip
+bootstrapFiles:
+  - AGENTS.md
+  - SOUL.md
+  - IDENTITY.md
+  - USER.md
+  - BOOTSTRAP.md
+  - MEMORY.md
 bootstrapMaxChars: 20000
 bootstrapTotalMaxChars: 60000
 userMaxChars: 4000
@@ -58,6 +71,7 @@ dailyTotalMaxChars: 2800
 timeZone: Asia/Shanghai
 includeDailyStartup: true
 includeCredentials: false
+maxFileChars: 200000
 ```
 
 `contextInjection` 可设置为：
@@ -81,6 +95,8 @@ dsh plugin --profile web add link:/path/to/dsh-openclaw-memory
 ```
 
 安装后，在 profile 的 patch 中加入插件配置，并按照 DSH 官方方式重启服务。生产环境操作前请先备份 profile 配置。
+
+插件启用后，通常不需要因为配置表单的修改而重启 DSH：表单通过 live Loader 直接更新 volatile 配置，注入快照和搜索工具会读取新配置。只有 profile 不支持 live reconciliation、服务处于启动态配置模式，或 DSH 明确提示 reload 失败时，才需要使用 DSH 官方重启流程。插件管理器禁用/启用会完整销毁并重建 context、tool、Remote、Sidebar、locale 和缓存。
 
 ## OpenClaw workspace 注意事项
 

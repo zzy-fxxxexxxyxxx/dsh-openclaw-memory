@@ -1,6 +1,6 @@
 {
   "name": "dsh-openclaw-memory",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "OpenClaw-compatible shared persona and memory for DeepSeek Harness",
   "type": "module",
   "repository": {
@@ -17,7 +17,7 @@
     ".": "./index.js",
     "./memory-core": "./memory-core.js",
     "./client": "./client.js",
-    "./remote": "./remote.js",
+    "./remote": "./typert.remote-client.js",
     "./typert": "./typert.host.js",
     "./package.json": "./package.json"
   },
@@ -27,7 +27,7 @@
     "client": {
       "platform": "web",
       "external": ["@deepseek-ai/dsh-api-gateway/client"],
-      "inject": ["@deepseek-ai/dsh-api-gateway", "@deepseek-ai/dsh-client-ui-sidebar-right", "@deepseek-ai/dsh-client-locale"]
+      "inject": ["@deepseek-ai/dsh-api-gateway", "@deepseek-ai/dsh-api-remotes", "@deepseek-ai/dsh-client-ui-sidebar-right", "@deepseek-ai/dsh-client-ui-primitives", "@deepseek-ai/dsh-client-locale"]
     }
   },
   "scripts": {

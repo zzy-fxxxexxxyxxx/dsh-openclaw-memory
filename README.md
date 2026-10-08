@@ -10,11 +10,12 @@ The default root is `/home/sunrise/.openclaw/workspace`. This is intentional: it
 
 The plugin provides:
 
-- bounded bootstrap context from `AGENTS.md`, `SOUL.md`, `IDENTITY.md`, `USER.md`, `BOOTSTRAP.md`, and `MEMORY.md`;
+- bootstrap context from six selectable candidate files (`AGENTS.md`, `SOUL.md`, `IDENTITY.md`, `USER.md`, `BOOTSTRAP.md`, and `MEMORY.md`); only existing, readable, enabled files are injected;
+- an independent `includeDailyStartup` switch controls daily memory injection; disabling every bootstrap file and this switch produces an empty automatic context while Sidebar browsing, editing, preview, and search remain available;
 - recent daily context from `memory/YYYY-MM-DD.md` and up to four newest `memory/YYYY-MM-DD-*.md` files per day;
 - bounded keyword retrieval over Markdown memory files;
-- a standard DSH Typert Remote service for listing, reading, searching, and conflict-safe editing;
-- a DSH web sidebar tab for safe Markdown browsing and editing.
+- a standard DSH Typert Remote service for listing, reading, searching, conflict-safe editing, live configuration, and exact context preview;
+- a DSH web sidebar tab for configuration, safe Markdown browsing/editing, and per-file truncation inspection; the injection preview has its own scroll area and independently collapsible file blocks. The editor also has a source/preview toggle backed by DSH's native Markdown renderer, previews unsaved text, and only the Save action writes;
 
 The default context policy is `continuation-skip`: the same snapshot is returned for an agent until a source file changes, and DSH runtime-context projection deduplicates unchanged durable snapshots.
 
@@ -33,6 +34,13 @@ The bundle patch in `cordis.patch.yml` shows the intended defaults:
 ```yaml
 root: /home/sunrise/.openclaw/workspace
 contextInjection: continuation-skip
+bootstrapFiles:
+  - AGENTS.md
+  - SOUL.md
+  - IDENTITY.md
+  - USER.md
+  - BOOTSTRAP.md
+  - MEMORY.md
 bootstrapMaxChars: 20000
 bootstrapTotalMaxChars: 60000
 userMaxChars: 4000
@@ -43,9 +51,12 @@ dailyTotalMaxChars: 2800
 timeZone: Asia/Shanghai
 includeDailyStartup: true
 includeCredentials: false
+maxFileChars: 200000
 ```
 
 `contextInjection` accepts `always`, `continuation-skip`, or `never`. `never` disables both context and the model-facing search tool; the Remote file API remains owned by the service only when the plugin is loaded with the corresponding profile.
+
+The Sidebar configuration form edits all fields through DSH `Settings`/`ConfigEditor`. These fields are volatile and live profiles hot-reconcile them without a DSH restart; context snapshots and the search tool observe the new values. An optimistic revision check prevents overwriting concurrent profile edits. If a deployment cannot reconcile live configuration, the UI reports that a restart is required. Disabling and re-enabling the plugin through the DSH manager disposes and restores its context, tool, Remote service, Sidebar, locale, and caches through Cordis ownership.
 
 ## OpenClaw Workspace Caveat
 

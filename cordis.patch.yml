@@ -4,6 +4,13 @@
       config:
         root: /home/sunrise/.openclaw/workspace
         contextInjection: continuation-skip
+        bootstrapFiles:
+          - AGENTS.md
+          - SOUL.md
+          - IDENTITY.md
+          - USER.md
+          - BOOTSTRAP.md
+          - MEMORY.md
         bootstrapMaxChars: 20000
         bootstrapTotalMaxChars: 60000
         userMaxChars: 4000
@@ -14,3 +21,4 @@
         timeZone: Asia/Shanghai
         includeDailyStartup: true
         includeCredentials: false
+        maxFileChars: 200000
