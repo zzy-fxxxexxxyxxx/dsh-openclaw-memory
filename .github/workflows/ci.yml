@@ -39,5 +39,8 @@ jobs:
           node --check remote.js
           node --check typert.host.js
 
+      - name: Check discoverability metadata
+        run: npm run check:discoverability
+
       - name: Inspect package contents
         run: npm pack --dry-run
