@@ -4,7 +4,7 @@ Release facts:
 - npm package: `dsh-openclaw-memory@0.1.4` (latest)
 - GitHub repo: `zzy-fxxxexxxyxxx/dsh-openclaw-memory`
 - Git tag: `v0.1.4`
-- Commit: `pending` (security release prepared locally)
+- Commit: `ae1449e` (security release)
 - README: bilingual storefront with migration workflow and screenshots
 - License: MIT
 - `dsh.bundle.patch`: points to `./cordis.patch.yml` (marketplace hard requirement, present)
