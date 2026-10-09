@@ -1,7 +1,7 @@
 import test from 'node:test';
 import { Config } from '../index.js';
 import assert from 'node:assert/strict';
-import { mkdtemp, mkdir, readFile, writeFile } from 'node:fs/promises';
+import { mkdtemp, mkdir, readFile, rm, symlink, unlink, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
 import {
@@ -139,6 +139,47 @@ test('search returns bounded Markdown excerpts', async () => {
   assert.equal(hits.length, 1);
   assert.equal(hits[0].path, 'memory/2026-10-07.md');
   assert.ok(hits[0].excerpt.includes('shared plugin'));
+});
+
+test('symlinked workspace entries are excluded from context and rejected by Remote file access', async () => {
+  const root = await fixture();
+  const outside = await mkdtemp(path.join(tmpdir(), 'dsh-openclaw-memory-outside-'));
+  try {
+    await writeFile(path.join(outside, 'AGENTS.md'), 'outside bootstrap secret');
+    await unlink(path.join(root, 'AGENTS.md'));
+    await symlink(path.join(outside, 'AGENTS.md'), path.join(root, 'AGENTS.md'));
+
+    await writeFile(path.join(outside, 'leaked.md'), 'outside memory secret');
+    await symlink(path.join(outside, 'leaked.md'), path.join(root, 'memory', 'leaked.md'));
+
+    const files = await listMemoryFiles(root);
+    assert.ok(!files.includes('AGENTS.md'));
+    assert.ok(!files.includes('memory/leaked.md'));
+    assert.doesNotMatch(buildContextSnapshotSync(root, { root, dailyMemoryDays: 0 }), /outside (?:bootstrap|memory) secret/);
+    assert.deepEqual(await searchMemory(root, 'outside secret', { root }), []);
+    await assert.rejects(() => readMemoryFile(root, 'AGENTS.md'), { code: 'SYMLINK_PATH' });
+    await assert.rejects(() => writeMemoryFile(root, 'AGENTS.md', 'overwrite', undefined), { code: 'SYMLINK_PATH' });
+    await assert.rejects(() => readMemoryFile(root, 'memory/leaked.md'), { code: 'SYMLINK_PATH' });
+    await assert.rejects(() => writeMemoryFile(root, 'memory/leaked.md', 'overwrite', undefined), { code: 'SYMLINK_PATH' });
+
+    const directoryRoot = await mkdtemp(path.join(tmpdir(), 'dsh-openclaw-memory-directory-'));
+    try {
+      const outsideMemory = path.join(outside, 'memory');
+      await mkdir(outsideMemory);
+      await writeFile(path.join(outsideMemory, '2026-10-07.md'), 'outside daily secret');
+      await rm(path.join(directoryRoot, 'memory'), { recursive: true, force: true });
+      await symlink(outsideMemory, path.join(directoryRoot, 'memory'), 'dir');
+      assert.ok(!(await listMemoryFiles(directoryRoot)).some((file) => file.startsWith('memory/')));
+      assert.deepEqual(await loadStartupDaily(directoryRoot, { root: directoryRoot, dailyMemoryDays: 1 }, new Date('2026-10-07T06:00:00Z')), []);
+      await assert.rejects(() => readMemoryFile(directoryRoot, 'memory/2026-10-07.md'), { code: 'SYMLINK_PATH' });
+      await assert.rejects(() => writeMemoryFile(directoryRoot, 'memory/2026-10-07.md', 'overwrite', undefined), { code: 'SYMLINK_PATH' });
+    } finally {
+      await rm(directoryRoot, { recursive: true, force: true });
+    }
+  } finally {
+    await rm(root, { recursive: true, force: true });
+    await rm(outside, { recursive: true, force: true });
+  }
 });
 
 test('path containment and optimistic concurrency protect writes', async () => {

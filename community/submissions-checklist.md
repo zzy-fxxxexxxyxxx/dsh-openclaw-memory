@@ -1,17 +1,17 @@
-# Community submissions checklist — dsh-openclaw-memory v0.1.3
+# Community submissions checklist — dsh-openclaw-memory v0.1.4
 
 Release facts:
-- npm package: `dsh-openclaw-memory@0.1.3` (latest)
+- npm package: `dsh-openclaw-memory@0.1.4` (latest)
 - GitHub repo: `zzy-fxxxexxxyxxx/dsh-openclaw-memory`
-- Git tag: `v0.1.3`
-- Commit: `c82f192`
-- README: rewritten in English + Chinese as a plugin storefront
+- Git tag: `v0.1.4`
+- Commit: `pending` (security release prepared locally)
+- README: bilingual storefront with migration workflow and screenshots
 - License: MIT
 - `dsh.bundle.patch`: points to `./cordis.patch.yml` (marketplace hard requirement, present)
-- `dsh.client` web platform with DSH injects present
+- Security fix: all shared-memory path components are checked with `lstat`; symlink files/directories are excluded from indexing and context, and rejected by Remote reads/writes.
 
 ## 1. GitHub discoverability (needs authorization)
-- [ ] Add GitHub topic `dsh-plugin` to repo (also add `openclaw`, `memory`, `dsh`, `plugin-if you like`)
+- [x] Add GitHub topic `dsh-plugin` to repo (also add `openclaw`, `memory`, `dsh`, `plugin-if you like`)
 - [ ] Keep repo active (commits + tags)
 - [ ] Optional: add a socially shareable description to repo
 
@@ -28,7 +28,7 @@ Release facts:
 - [ ] This is a PR to an external repo — needs account authorization
 
 ## 5. dsh-market (if relevant)
-- [ ] Open Issue requesting inclusion, referencing npm `dsh-openclaw-memory@0.1.3`
+- [ ] Open Issue requesting inclusion, referencing npm `dsh-openclaw-memory@0.1.4`
 
 ## 6. Official DSH Discussions
 - [ ] Post under "Show Your Plugins!" in the deepseek-harness repo (needs authorization)
@@ -46,14 +46,14 @@ File: `awesome-dsh-plugin/data/plugins/dsh-openclaw-memory.yml` (adjust to actua
 
 ```yaml
 name: dsh-openclaw-memory
-description: OpenAI-compatible shared persona and bounded memory context between DeepSeek Harness and OpenClaw, with a safe Markdown editor Sidebar.
+description: Shared OpenClaw persona and bounded memory context for DeepSeek Harness, with a safe Markdown editor Sidebar.
 long_description: |
   Reads the canonical OpenClaw workspace (AGENTS.md, SOUL.md, USER.md, MEMORY.md,
   memory/YYYY-MM-DD*.md) and injects it as bounded, safe shared context for DSH
   agents, plus a full Sidebar UI to browse, edit, preview, and search those files.
 repo: https://github.com/zzy-fxxxexxxyxxx/dsh-openclaw-memory
 npm: dsh-openclaw-memory
-version: 0.1.3
+version: 0.1.4
 license: MIT
 platform:
   - web
@@ -72,10 +72,10 @@ Title: Add dsh-openclaw-memory to dsh-market
 
 Body:
 npm: dsh-openclaw-memory
-version: 0.1.3
+version: 0.1.4
 repo: https://github.com/zzy-fxxxexxxyxxx/dsh-openclaw-memory
 dsh.bundle.patch: present (cordis.patch.yml)
 platform: web
 license: MIT
-Description: OpenAI/OpenClaw-compatible shared persona and bounded memory context for DeepSeek Harness.
+Description: Shared OpenClaw persona and bounded memory context for DeepSeek Harness.
 ```

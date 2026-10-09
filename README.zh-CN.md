@@ -2,33 +2,99 @@
 
 [English](README.md)
 
-**让 DeepSeek Harness（DSH）直接拥有 OpenClaw 的人格与记忆——同一组 Markdown 文件，安全注入、可浏览、可编辑、有边界。**
+[![npm version](https://img.shields.io/npm/v/dsh-openclaw-memory?color=cb3837&label=npm)](https://www.npmjs.com/package/dsh-openclaw-memory)
+[![CI](https://github.com/zzy-fxxxexxxyxxx/dsh-openclaw-memory/actions/workflows/ci.yml/badge.svg)](https://github.com/zzy-fxxxexxxyxxx/dsh-openclaw-memory/actions/workflows/ci.yml)
+[![许可证](https://img.shields.io/npm/l/dsh-openclaw-memory)](LICENSE)
 
-`dsh-openclaw-memory` 是一个 DSH 插件，直接读取规范 OpenClaw workspace，把人格文件与 daily memory（`AGENTS.md`、`SOUL.md`、`USER.md`、`MEMORY.md`、`memory/YYYY-MM-DD*.md`）以**有界、安全**的方式注入 DSH agent，并提供完整的 Sidebar 页面浏览、编辑、预览、搜索这些文件。
+## 从 OpenClaw 迁移到 DSH，不必从零开始
 
-## ✨ 为什么做这个
+你已经在 OpenClaw 里积累了人格设定、用户偏好、工作规则和长期记忆。迁移到 DeepSeek Harness，不应该意味着重新训练一个“陌生的助手”。
 
-OpenClaw 与 DSH 应该共享同一份事实源，而不是各自越来越偏离。安装本插件后，DSH 直接读取你的 OpenClaw `workspace`，把已经维护好的人格、记忆文件搬进 DSH 上下文——无需复制、无需迁移，即可让两个助手共享同一份记忆与设定。
+**`dsh-openclaw-memory` 就是这条连续性迁移层：**它让 DSH 直接读取同一个 OpenClaw workspace，在明确的上下文预算和隐私边界内复用已有记忆，并通过原生 DSH Sidebar 管理这些共享 Markdown 文件。
 
-## ✨ 功能亮点
+```text
+OpenClaw workspace  ──┬──> OpenClaw
+                      └──> dsh-openclaw-memory ──> DSH
 
-- **共享人格与记忆注入**：六个 bootstrap 候选文件（`AGENTS.md`、`SOUL.md`、`IDENTITY.md`、`USER.md`、`BOOTSTRAP.md`、`MEMORY.md`）独立开关，独立按文件与总计字符预算截断。
-- **有界 daily memory**：最近两天的 `memory/YYYY-MM-DD.md` 与每天最多 4 个最新的 `memory/YYYY-MM-DD-*.md`，以明确的 untrusted quoted block 引入。
-- **有界关键词检索**：`openclaw_memory_search` 工具，带按文件与总字符上限。
-- **精确上下文预览**：在 Sidebar 里查看**实际将注入的内容**，每个文件的源大小、预算、注入字符数与截断状态一目了然。
-- **安全 Sidebar 编辑器**：VS Code 风格文件树（顶层 Markdown 与可折叠 `memory/` 分开）、源码/渲染预览切换、live `Settings`/`ConfigEditor`、乐观并发写入保护、逐文件截断检查。
-- **`continuation-skip`**：同一 agent 在共享文件未变化时复用快照，避免上下文频繁变更。
-- **live 配置热生效**：所有配置字段都是 volatile，live profile 热协商无需重启 DSH；带有乐观修订检查，防止覆盖并发修改。
+一份 workspace，两个客户端，不再维护两套记忆。
+```
 
-## ⚖️ 默认隐私与安全
+> **适合人群：**正在使用 OpenClaw、准备把部分工作流迁移到 DSH，同时希望保留原有身份、偏好、行为规则和历史记忆的人。
 
-- 默认排除凭据与 secret 文件名（凭据类文件名、JSON 产物默认不注入、不列出、不读取、不搜索、不可写），除非显式设置 `includeCredentials: true`。
-- 仅 bootstrap Markdown 与 `memory/**/*.md` 可编辑；拒绝路径穿越与绝对路径；忽略 symlink；读写有上限；写入带乐观版本检查。
-- 共享文件是 workspace 数据，不是更高优先级的指令；不得覆盖 DSH system policy。
+## 为什么需要它
 
-## 🚀 安装
+一个助手不只有模型接口。真正形成连续性的，往往是围绕模型维护的 workspace：
 
-安装到 DSH profile（按需替换 profile 名称）：
+- `SOUL.md`、`IDENTITY.md` 定义助手的行为与身份；
+- `USER.md` 保存用户信息和交互偏好；
+- `AGENTS.md`、`BOOTSTRAP.md`、`MEMORY.md` 承载工作规则和长期上下文；
+- `memory/` 保存持续增长的 daily memory。
+
+从 OpenClaw 迁移到 DSH 时，最昂贵的不是再安装一个客户端，而是避免这些积累被拆成两份、逐渐产生偏差。
+
+本插件把 workspace 保持为唯一事实源。DSH 直接读取它，只注入你明确配置且经过预算限制的内容，并通过受控 Sidebar 提供相同文件的浏览、预览和编辑能力。
+
+## 你将获得什么
+
+### 不建立第二套记忆系统
+
+直接指向你已经信任的 OpenClaw workspace。没有隐藏数据库、没有强制导入向导，也不会自动迁移文件。文件仍在原处，两个客户端可以面对同一份事实源。
+
+### 可解释的上下文边界
+
+选择要注入的 bootstrap 文件，设置单文件与总字符预算。在上下文真正进入 agent 之前，先预览完整结果、文件大小、注入字符数、预算和截断状态。
+
+### 在 DSH 内维护同一套文件
+
+通过 Sidebar 浏览顶层 Markdown 与 `memory/` 文件树，切换源码和渲染预览，编辑并显式保存。写入范围受限于允许的 workspace 表面，并使用乐观版本检查保护并发修改。
+
+### 默认克制的安全边界
+
+凭据类文件、JSON 产物、symlink、绝对路径和路径穿越默认被排除。共享 workspace 内容被视为数据，不具有高于 DSH system policy 的指令优先级。
+
+### 稳定的跨轮次连续性
+
+使用 `continuation-skip` 时，同一 agent 会复用未变化的上下文快照，直到相关源文件或配置发生变化，避免每轮无意义地重新注入。
+
+## 功能面
+
+- **Bootstrap 上下文**：独立选择 `AGENTS.md`、`SOUL.md`、`IDENTITY.md`、`USER.md`、`BOOTSTRAP.md`、`MEMORY.md`。
+- **Daily memory**：可选注入最近的 `memory/YYYY-MM-DD.md`，以及每天最多 4 个最新的 `memory/YYYY-MM-DD-*.md`。
+- **上下文预览**：查看实际组装后的 snapshot 以及每个文件的预算统计。
+- **记忆检索**：通过 `openclaw_memory_search` 提供有界关键词检索。
+- **Remote API**：通过 DSH Typert Remote 完成列出、读取、搜索、预览和带冲突保护的写入。
+- **Sidebar 编辑器**：文件树、源码/渲染预览、配置编辑、刷新和显式保存。
+- **实时设置**：通过 DSH `Settings`/`ConfigEditor` 更新 volatile 配置，并使用乐观修订检查。
+
+## 实际使用界面
+
+### 1. 从 DSH 首页进入共享记忆
+
+插件以原生 DSH 入口出现，与 workspace、终端等操作并列。
+
+![DSH 首页中的共享记忆入口](docs/screenshots/welcome.png)
+
+### 2. 配置迁移边界
+
+选择哪些 OpenClaw 文件参与模型上下文，设置共享根目录，并独立控制 daily memory。所有边界都可见，而不是隐藏在不可解释的适配层里。
+
+![DSH Sidebar 中的共享 OpenClaw workspace 配置](docs/screenshots/configuration.png)
+
+### 3. 核对 DSH 实际会收到什么
+
+注入预览展示完整上下文、每个文件的字符统计和截断状态。这是谨慎迁移的关键检查点：先看清楚边界，再让它进入日常上下文。
+
+![实际注入上下文预览](docs/screenshots/context-preview.png)
+
+### 4. 继续维护同一套 workspace
+
+在 Sidebar 中编辑同一批 Markdown 文件，预览渲染结果，确认后再保存。OpenClaw 与 DSH 仍然通过同一个 workspace 相遇。
+
+![DSH Sidebar 中的 Markdown 文件树与编辑器](docs/screenshots/editor.png)
+
+## 安装
+
+将已发布插件安装到 DSH profile：
 
 ```sh
 dsh plugin --profile web add dsh-openclaw-memory
@@ -40,15 +106,22 @@ dsh plugin --profile web add dsh-openclaw-memory
 dsh plugin --profile web add link:/path/to/dsh-openclaw-memory
 ```
 
-搭配 `cordis.patch.yml` 中的默认配置：
+然后将插件配置加入 profile patch，或参考仓库中的 [`cordis.patch.yml`](cordis.patch.yml)：
 
 ```yaml
 - id: openclaw-memory
   name: dsh-openclaw-memory
   config:
+    # 指向已经包含 OpenClaw 记忆的 workspace。
     root: /home/sunrise/.openclaw/workspace
     contextInjection: continuation-skip
-    bootstrapFiles: [AGENTS.md, SOUL.md, IDENTITY.md, USER.md, BOOTSTRAP.md, MEMORY.md]
+    bootstrapFiles:
+      - AGENTS.md
+      - SOUL.md
+      - IDENTITY.md
+      - USER.md
+      - BOOTSTRAP.md
+      - MEMORY.md
     bootstrapMaxChars: 20000
     bootstrapTotalMaxChars: 60000
     userMaxChars: 4000
@@ -56,66 +129,71 @@ dsh plugin --profile web add link:/path/to/dsh-openclaw-memory
     dailyFileMaxBytes: 16384
     dailyFileMaxChars: 1200
     dailyTotalMaxChars: 2800
-    timeZone: Asia/Shanghai
     includeDailyStartup: true
+    timeZone: Asia/Shanghai
     includeCredentials: false
     maxFileChars: 200000
 ```
 
-`contextInjection` 可选 `always`、`continuation-skip`、`never`。
+`contextInjection` 支持：
 
-## 📸 效果展示
+- `always`：每次模型请求都重新组装上下文；
+- `continuation-skip`：同一 agent 在源文件未变化时复用快照；
+- `never`：关闭模型上下文注入与模型侧搜索工具；插件加载后，文件 Remote 仍可按 profile 配置使用。
 
-> 截图区域：Sidebar 总览、文件树、预览、配置面板。图片随后补充。
+### 建议的低风险迁移流程
 
-## ✅ 无头快速验证
+1. **保持现有 OpenClaw workspace 不变。**按你的日常运维方式先做好备份，再调整生产配置。
+2. **先在测试或独立 DSH profile 中安装。**将 `root` 指向已经包含 OpenClaw 身份和记忆文件的 workspace。
+3. **从较小范围开始。**只启用你确认需要共享的文件，并保持 `includeCredentials: false`。
+4. **打开“注入预览”。**核对实际 snapshot、预算和截断状态，再启用常规上下文注入。
+5. **逐步迁移工作流。**保留 OpenClaw 可用，同时对照验证 DSH 回复和 Sidebar 编辑是否都作用于同一批文件。
 
-不依赖浏览器直接试用核心库：
+本插件不会修改 OpenClaw 的 agent 配置。如果 OpenClaw 与 DSH 指向不同目录，它们就没有共享同一份事实源；这项切换需要单独审查。
+
+## 信任与安全模型
+
+本插件是 workspace bridge，不是通用文件浏览器。
+
+- 示例 patch 的默认根目录是 `/home/sunrise/.openclaw/workspace`，请替换成你自己的规范 workspace。
+- 受管理范围仅包含配置中的 bootstrap Markdown 与 `memory/**/*.md`。
+- 凭据和 secret 文件名默认排除；`includeCredentials: true` 是显式 opt-in，不建议在生产环境开启。
+- JSON 产物默认不进入索引，symlink 会被忽略。
+- 拒绝绝对路径和路径穿越。
+- 读写受配置限制，写入使用乐观版本检查，避免覆盖更新版本。
+- workspace 文本属于不可信数据，不得覆盖 DSH system policy。
+- 本包不会复制、迁移、删除或悄悄重写 OpenClaw 文件。
+
+## 兼容性与边界
+
+- 需要支持 bundle patch 与 Web client surface 的 DSH profile。
+- 当前发布版本针对本项目使用的 DSH `0.2.0-rc.2` 依赖线。
+- 插件读取 Markdown workspace 文件；不会同步 OpenClaw 私有 session 数据库，也不会从其他客户端的 session store 重建会话。
+- 插件提供共享文件/上下文边界，不承诺 OpenClaw 与 DSH 在不同模型和运行时下表现完全一致。
+- profile Loader 支持时，配置更新会 live reconcile；如果 DSH 报告无法热生效，请按该 profile 的正常 reload 流程处理。
+
+## 开发与验证
+
+长期维护的源代码位于 `src/` TypeScript 目录。根目录 `.js` 文件是兼容入口，浏览器 Sidebar 会单独打包以适配 DSH module loader。
 
 ```sh
-node --input-type=module - <<'NODE'
-import { buildContextSnapshot, loadBootstrap } from 'dsh-openclaw-memory/memory-core';
-const snapshot = await buildContextSnapshot('/home/sunrise/.openclaw/workspace', { bootstrapFiles: ['MEMORY.md'] });
-console.log(snapshot);
-console.log((await loadBootstrap('/home/sunrise/.openclaw/workspace', { bootstrapFiles: ['MEMORY.md'] })).map((f) => f.path));
-NODE
-```
-
-## 📦 配置参考
-
-`cordis.patch.yml` 中的字段都可以在 Sidebar 里直接编辑。仓库中的 `cordis.patch.yml` 是规范默认配置。
-
-## 🧱 OpenClaw workspace 注意事项
-
-本插件**读取**规范 OpenClaw workspace（默认 `/home/sunrise/.openclaw/workspace`）。若 OpenClaw 的 `main` agent 仍指向 `/home/sunrise/.openclaw/workspace-main`，本插件不会修改它；true runtime sharing 需要你自行审查并切换 OpenClaw 配置。
-
-本包只读取和编辑共享文件，不会复制、迁移或删除任何 OpenClaw 文件。
-
-## 🧪 工程质量与测试
-
-- 全 TypeScript，按职责拆分到 `src/`（core 配置/路径/Bootstrap/Daily/文件/上下文、service、remote/typert 协议、client Sidebar）。
-- 根目录 `.js` 只是兼容入口；`npm run build` 编译到 `dist/` 并打包客户端。
-- 14 项自动化测试覆盖行为与协议导出、声明文件、DSH 客户端加载协议。
-- 测试只使用临时目录，不影响真实 OpenClaw workspace 或生产 profile。
-
-```sh
+npm install
 npm run typecheck
 npm test
 npm pack --dry-run
 ```
 
-## 🗺 Roadmap
+测试使用临时目录，不读取真实 OpenClaw workspace 或生产 profile，覆盖行为、异步/同步一致性、路径与写入安全、package exports、声明文件、Remote/Typert descriptors 以及 DSH client loader contract。
 
-- 更多 daily memory 来源与多时区聚合；
-- 检索相关性优化与分面过滤；
-- 更多社区发行渠道与市场收录。
+## 项目状态
 
-## 🤝 社区与支持
+`dsh-openclaw-memory` 是 MIT 许可的社区插件，当前版本为 `0.1.4`。
 
-- Issue / 功能请求：[GitHub Issues](https://github.com/zzy-fxxxexxxyxxx/dsh-openclaw-memory/issues)
-- DSH Plugin Hub：[dsh-plugin.org/zh/submit](https://dsh-plugin.org/zh/submit)
-- DSH 官方“Show Your Plugins!”交流区欢迎讨论。
+- 仓库：<https://github.com/zzy-fxxxexxxyxxx/dsh-openclaw-memory>
+- npm：<https://www.npmjs.com/package/dsh-openclaw-memory>
+- Issue：<https://github.com/zzy-fxxxexxxyxxx/dsh-openclaw-memory/issues>
+- DSH Plugin Hub 提交入口：<https://dsh-plugin.org/zh/submit>
 
-## 📄 许可证
+## 许可证
 
 MIT

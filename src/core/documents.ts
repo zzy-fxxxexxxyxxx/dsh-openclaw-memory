@@ -2,10 +2,16 @@ import { promises as fs } from 'node:fs';
 import path from 'node:path';
 import { DEFAULT_CONFIG } from './constants.js';
 import { normalizeConfig } from './config.js';
-import { isCredentialPath, resolveInsideRoot, safeRelativePath } from './paths.js';
+import { isCredentialPath, resolveInsideRoot, safeRelativePath, assertNoSymlinkPath, isSymlinkPathError } from './paths.js';
 import type { MemoryConfigInput, MemoryFileRead, MemoryFileWrite, MemorySearchHit } from '../types/domain.js';
 
+function isMissing(error: unknown): boolean {
+  return (error as NodeJS.ErrnoException).code === 'ENOENT';
+}
+
 async function walkMarkdown(root: string, directory: string, result: string[], includeCredentials: boolean): Promise<void> {
+  try { await assertNoSymlinkPath(root, path.relative(root, directory).replaceAll(path.sep, '/')); }
+  catch (error) { if (isMissing(error) || isSymlinkPathError(error)) return; throw error; }
   let entries;
   try { entries = await fs.readdir(directory, { withFileTypes: true }); }
   catch (error) {
@@ -26,11 +32,16 @@ export async function listMemoryFiles(root: string, input: MemoryConfigInput = D
   const paths: string[] = [];
   for (const candidate of ['AGENTS.md', 'SOUL.md', 'IDENTITY.md', 'USER.md', 'BOOTSTRAP.md', 'MEMORY.md']) {
     if (config.includeCredentials || !isCredentialPath(candidate)) {
-      try { await fs.stat(resolveInsideRoot(root, candidate)); paths.push(candidate); }
-      catch (error) { if ((error as NodeJS.ErrnoException).code !== 'ENOENT') throw error; }
+      try {
+        await assertNoSymlinkPath(root, candidate);
+        await fs.stat(resolveInsideRoot(root, candidate));
+        paths.push(candidate);
+      }
+      catch (error) { if (!isMissing(error) && !isSymlinkPathError(error)) throw error; }
     }
   }
-  await walkMarkdown(root, resolveInsideRoot(root, 'memory'), paths, config.includeCredentials);
+  try { await walkMarkdown(root, resolveInsideRoot(root, 'memory'), paths, config.includeCredentials); }
+  catch (error) { if (!isSymlinkPathError(error)) throw error; }
   return [...new Set(paths)].sort((a, b) => a.localeCompare(b));
 }
 
@@ -56,6 +67,8 @@ export async function searchMemory(root: string, query: string, input: MemoryCon
   const terms = query.toLocaleLowerCase().split(/\s+/u).filter(Boolean);
   const hits: MemorySearchHit[] = [];
   for (const relativePath of await listMemoryFiles(root, config)) {
+    try { await assertNoSymlinkPath(root, relativePath); }
+    catch (error) { if (isSymlinkPathError(error)) continue; throw error; }
     const buffer = await fs.readFile(resolveInsideRoot(root, relativePath));
     const text = buffer.subarray(0, config.maxFileChars * 4).toString('utf8');
     const score = keywordScore(`${relativePath}\n${text}`, terms);
@@ -79,6 +92,7 @@ export async function readMemoryFile(root: string, relativePath: string, input: 
   if (!isMemoryDocumentPath(safe)) throw new Error('only OpenClaw Markdown memory files are exposed');
   if (!config.includeCredentials && isCredentialPath(safe)) throw new Error('credential files are not exposed by shared-memory UI');
   const absolute = resolveInsideRoot(root, safe);
+  await assertNoSymlinkPath(root, safe);
   const stat = await fs.stat(absolute);
   if (!stat.isFile()) throw new Error('only regular files can be read');
   const content = await fs.readFile(absolute, 'utf8');
@@ -94,6 +108,7 @@ export async function writeMemoryFile(root: string, relativePath: string, conten
   if (typeof content !== 'string') throw new TypeError('content must be a string');
   if (content.length > config.maxFileChars) throw new Error(`file exceeds ${config.maxFileChars} character write cap`);
   const absolute = resolveInsideRoot(root, safe);
+  await assertNoSymlinkPath(root, safe);
   const stat = await fs.stat(absolute);
   if (!stat.isFile()) throw new Error('only regular files can be written');
   if (expectedVersion !== `${stat.mtimeMs}:${stat.size}`) {

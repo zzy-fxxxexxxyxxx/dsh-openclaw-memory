@@ -2,7 +2,7 @@ import { promises as fs, readdirSync, readFileSync, statSync } from 'node:fs';
 import path from 'node:path';
 import { DEFAULT_CONFIG } from './constants.js';
 import { normalizeConfig, truncateChars } from './config.js';
-import { isCredentialPath, resolveInsideRoot } from './paths.js';
+import { isCredentialPath, resolveInsideRoot, assertNoSymlinkPath, assertNoSymlinkPathSync, isSymlinkPathError } from './paths.js';
 import type { BoundedMemoryFile, MemoryConfig, MemoryConfigInput } from '../types/domain.js';
 
 const MAX_SLUGGED_FILES_PER_DAY = 4;
@@ -26,6 +26,7 @@ export function startupMemoryFileNamesSync(root: string, dateKey: string, includ
   const memoryRoot = resolveInsideRoot(root, 'memory');
   const canonical = `${dateKey}.md`;
   try {
+    assertNoSymlinkPathSync(root, 'memory');
     const slugged = readdirSync(memoryRoot, { withFileTypes: true })
       .filter((entry) => entry.isFile() && entry.name.toLowerCase().endsWith('.md') && entry.name.startsWith(`${dateKey}-`) && (includeCredentials || !isCredentialPath(`memory/${entry.name}`)))
       .map((entry) => {
@@ -38,7 +39,7 @@ export function startupMemoryFileNamesSync(root: string, dateKey: string, includ
       .map(({ name }) => name);
     return [canonical, ...slugged];
   } catch (error) {
-    if (isMissing(error)) return [canonical];
+    if (isMissing(error) || isSymlinkPathError(error)) return [canonical];
     throw error;
   }
 }
@@ -47,6 +48,7 @@ async function startupMemoryFileNames(root: string, dateKey: string, includeCred
   const memoryRoot = resolveInsideRoot(root, 'memory');
   const canonical = `${dateKey}.md`;
   try {
+    await assertNoSymlinkPath(root, 'memory');
     const entries = await fs.readdir(memoryRoot, { withFileTypes: true });
     const slugged = (await Promise.all(entries
       .filter((entry) => entry.isFile() && entry.name.toLowerCase().endsWith('.md') && entry.name.startsWith(`${dateKey}-`) && (includeCredentials || !isCredentialPath(`memory/${entry.name}`)))
@@ -60,13 +62,14 @@ async function startupMemoryFileNames(root: string, dateKey: string, includeCred
       .map(({ name }) => name);
     return [canonical, ...slugged];
   } catch (error) {
-    if (isMissing(error)) return [canonical];
+    if (isMissing(error) || isSymlinkPathError(error)) return [canonical];
     throw error;
   }
 }
 
 async function readDailyFile(root: string, relativePath: string, config: MemoryConfig): Promise<BoundedMemoryFile | undefined> {
   try {
+    await assertNoSymlinkPath(root, relativePath);
     const absolute = resolveInsideRoot(root, relativePath);
     const buffer = await fs.readFile(absolute);
     const source = buffer.subarray(0, config.dailyFileMaxBytes).toString('utf8');
@@ -81,7 +84,7 @@ async function readDailyFile(root: string, relativePath: string, config: MemoryC
       truncated: stat.size > config.dailyFileMaxBytes || clipped.truncated,
     };
   } catch (error) {
-    if (isMissing(error)) return undefined;
+    if (isMissing(error) || isSymlinkPathError(error)) return undefined;
     throw error;
   }
 }
@@ -119,6 +122,7 @@ export function loadStartupDailySync(root: string, input: MemoryConfigInput = DE
     for (const fileName of startupMemoryFileNamesSync(root, dateKey, config.includeCredentials)) {
       try {
         const absolute = resolveInsideRoot(root, `memory/${fileName}`);
+        assertNoSymlinkPathSync(root, `memory/${fileName}`);
         const buffer = readFileSync(absolute);
         const stat = statSync(absolute);
         const source = buffer.subarray(0, config.dailyFileMaxBytes).toString('utf8');
@@ -130,7 +134,7 @@ export function loadStartupDailySync(root: string, input: MemoryConfigInput = DE
         usedChars += bounded.text.length;
         if (bounded.truncated) return files;
       } catch (error) {
-        if (!isMissing(error)) throw error;
+        if (!isMissing(error) && !isSymlinkPathError(error)) throw error;
       }
     }
   }

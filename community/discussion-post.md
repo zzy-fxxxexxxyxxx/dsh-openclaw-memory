@@ -1,4 +1,4 @@
-# 📢 "Show Your Plugins!" — dsh-openclaw-memory v0.1.3
+# 📢 "Show Your Plugins!" — dsh-openclaw-memory v0.1.4
 
 Post title: `dsh-openclaw-memory: share one OpenClaw persona + memory with DeepSeek Harness`
 
@@ -19,7 +19,7 @@ It injects the OpenClaw bootstrap + daily memory as **bounded** shared context (
 Why I built it: OpenClaw and DSH each had their own memory files. I wanted them to share one source of truth — the same workspace — so the persona and memory are the same everywhere. It reads the canonical workspace, never modifies it.
 
 - Repo: https://github.com/zzy-fxxxexxxyxxx/dsh-openclaw-memory
-- npm: `dsh-openclaw-memory@0.1.3`
+- npm: `dsh-openclaw-memory@0.1.4`
 - License: MIT
 - Full docs: https://github.com/zzy-fxxxexxxyxxx/dsh-openclaw-memory#readme
 
