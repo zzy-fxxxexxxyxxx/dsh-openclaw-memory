@@ -4,8 +4,11 @@ Release facts:
 - npm package: `dsh-openclaw-memory@0.1.4` (latest)
 - GitHub repo: `zzy-fxxxexxxyxxx/dsh-openclaw-memory`
 - Git tag: `v0.1.4`
-- Commit: `ae1449e` (security release)
+- Commit: `8a7603e` (discovery materials; release code remains `ae1449e`)
 - README: bilingual storefront with migration workflow and screenshots
+- Plugin Hub Issue: https://github.com/dshplugin/dsh-plugin-hub/issues/140 (open, awaiting review)
+- Awesome PR: https://github.com/awesome-dsh-plugin/awesome-dsh-plugin/pull/6998 (open, CI pending)
+- Official Discussion: https://github.com/deepseek-ai/deepseek-harness/discussions/9288 (published)
 - License: MIT
 - `dsh.bundle.patch`: points to `./cordis.patch.yml` (marketplace hard requirement, present)
 - `screenshots.json`: declares four GitHub-hosted screenshots for downstream storefronts
