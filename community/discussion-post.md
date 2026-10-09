@@ -1,12 +1,12 @@
 # 📢 "Show Your Plugins!" — dsh-openclaw-memory v0.1.4
 
-Post title: `dsh-openclaw-memory: share one OpenClaw persona + memory with DeepSeek Harness`
+Post title: `dsh-openclaw-memory: keep your OpenClaw persona and memory when moving to DSH`
 
 ## Basic prompt
 
-**Title: dsh-openclaw-memory — give DeepSeek Harness the same persona and memory as your OpenClaw workspace**
+If you are moving from OpenClaw to DeepSeek Harness, you should not have to rebuild the assistant's identity, preferences, operating rules, and long-term memory from scratch.
 
-**dsh-openclaw-memory** is a DSH plugin that makes DSH agents share the **same OpenClaw workspace** — same persona, persona files, MEMORY.md, and daily memory — in one shared, bounded, safe Markdown context.
+**dsh-openclaw-memory** lets DSH read the same OpenClaw workspace as OpenClaw itself. It turns the Markdown files you select into bounded shared context, and adds a native Sidebar for configuration, exact injection preview, file browsing, source/rendered preview, search, and explicit save.
 
 **Install:**
 
@@ -14,13 +14,27 @@ Post title: `dsh-openclaw-memory: share one OpenClaw persona + memory with DeepS
 dsh plugin --profile web add dsh-openclaw-memory
 ```
 
-It injects the OpenClaw bootstrap + daily memory as **bounded** shared context (`continuation-skip` by default), exposes a safe Sidebar editor (VS Code-style file tree, source/rendered preview, live Settings/ConfigEditor), an exact injection preview, and a bounded `openclaw_memory_search` tool.
+A cautious migration looks like this:
 
-Why I built it: OpenClaw and DSH each had their own memory files. I wanted them to share one source of truth — the same workspace — so the persona and memory are the same everywhere. It reads the canonical workspace, never modifies it.
+1. Keep the existing OpenClaw workspace unchanged and point the plugin at that canonical directory.
+2. Start with a test DSH profile and select only the bootstrap files you want to share.
+3. Open Injection Preview to inspect the exact assembled context, budgets, and truncation state.
+4. Move traffic gradually while OpenClaw remains available as a comparison point.
 
-- Repo: https://github.com/zzy-fxxxexxxyxxx/dsh-openclaw-memory
-- npm: `dsh-openclaw-memory@0.1.4`
+The boundary is deliberate:
+
+- Bootstrap and daily memory are bounded by per-file and total character budgets.
+- Credential-like names, JSON artifacts, symlinks, absolute paths, and traversal attempts are excluded or rejected by default.
+- Remote reads and writes reject symlink path components.
+- Shared workspace text is treated as data, not as higher-priority instructions than DSH system policy.
+- The plugin does not copy, migrate, delete, or silently rewrite OpenClaw files. The Sidebar can explicitly edit the allowed Markdown files when you choose to save.
+- It does not synchronize OpenClaw's private session database.
+
+Screenshots and the full migration guide are in the README:
+
+- Repository: https://github.com/zzy-fxxxexxxyxxx/dsh-openclaw-memory
+- npm: https://www.npmjs.com/package/dsh-openclaw-memory
+- Current release: `0.1.4`
 - License: MIT
-- Full docs: https://github.com/zzy-fxxxexxxyxxx/dsh-openclaw-memory#readme
 
-**Try it:** `dsh plugin --profile web add dsh-openclaw-memory` then configure `cordis.patch.yml` and restart the profile; verify context preview and search in the Sidebar.
+Feedback is welcome, especially around OpenClaw workspace layouts, DSH profile configuration, and which context boundaries make migration safer.

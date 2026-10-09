@@ -8,7 +8,8 @@ Release facts:
 - README: bilingual storefront with migration workflow and screenshots
 - License: MIT
 - `dsh.bundle.patch`: points to `./cordis.patch.yml` (marketplace hard requirement, present)
-- Security fix: all shared-memory path components are checked with `lstat`; symlink files/directories are excluded from indexing and context, and rejected by Remote reads/writes.
+- `screenshots.json`: declares four GitHub-hosted screenshots for downstream storefronts
+- DSH market path: submit the Awesome DSH Plugin entry; `dsh-market` consumes that registry and does not accept plugin-entry PRs
 
 ## 1. GitHub discoverability (needs authorization)
 - [x] Add GitHub topic `dsh-plugin` to repo (also add `openclaw`, `memory`, `dsh`, `plugin-if you like`)
@@ -16,66 +17,42 @@ Release facts:
 - [ ] Optional: add a socially shareable description to repo
 
 ## 2. DSH Plugin Hub
-- [ ] Submit at https://dsh-plugin.org/zh/submit with repo URL `https://github.com/zzy-fxxxexxxyxxx/dsh-openclaw-memory`
-- [ ] Check `build-dsh-plugin` precheck passes before submission
+- [ ] Submit at https://dsh-plugin.org/zh/submit or create the prepared Issue from [`community/dsh-plugin-hub-issue.md`](dsh-plugin-hub-issue.md)
+- [ ] Check `build-dsh-plugin` or the Hub's concrete install precheck before submission
+- [ ] Record the resulting Issue URL and review status
 
-## 3. DSH-Store
-- [ ] Submit public GitHub repo URL; bot reads metadata automatically
-- [ ] Run `build-dsh-plugin` read-only precheck first
+## 3. DSH-Store / dsh-market
+- [ ] The `dsh-market` README says its catalog comes from `awesome-dsh-plugin`; do not open a plugin-entry PR against `dsh-market`
+- [ ] After the Awesome PR merges, verify the entry appears in dsh-market after its refresh cycle
+- [ ] The separate `DshMarketPlace/dsh-plugins-store` project has no documented public plugin submission form; investigate only if that specific catalog is desired
 
 ## 4. awesome-dsh-plugin
-- [ ] Open PR adding a YAML entry (see draft in this file)
-- [ ] This is a PR to an external repo — needs account authorization
+- [ ] Open a PR adding exactly one file: `data/plugins/zzy-fxxxexxxyxxx__dsh-openclaw-memory.yml`
+- [ ] Use the prepared local entry in [`community/awesome-dsh-plugin.yml`](awesome-dsh-plugin.yml)
+- [ ] Category: `memory`
+- [ ] Do not edit generated README files or add a hand-written `npm:` field
+- [ ] This is a PR to an external repo and needs account authorization
 
-## 5. dsh-market (if relevant)
-- [ ] Open Issue requesting inclusion, referencing npm `dsh-openclaw-memory@0.1.4`
+## 5. Official DSH Discussions
+- [ ] Post under the `Show Your Plugins!` category in the DeepSeek Harness repository
+- [ ] Use the prepared copy in [`community/discussion-post.md`](discussion-post.md)
+- [ ] Record the published Discussion URL
 
-## 6. Official DSH Discussions
-- [ ] Post under "Show Your Plugins!" in the deepseek-harness repo (needs authorization)
-- Template for the post is in `community/discussion-post.md`
+## 6. Community interactions
+- [ ] Publish a tailored Chinese post in LINUX DO or another relevant Chinese developer community
+- [ ] Publish a tailored English post in a relevant Reddit or Discord channel, only where plugin/tool promotion is allowed
+- [ ] Keep external posts linked to the canonical README and npm package; do not paste private workspace content
+- [ ] Optional: publish the longer migration tutorial after the first community feedback
 
-## 7. Community interactions
-- [ ] Share in Reddit / LINUX DO / Discord when relevant threads appear
-- Optional: docs/blog article and zhihu content
+## 7. Long-term discovery
+- [ ] Keep GitHub topics, release tags, npm `latest`, README install command, screenshots, and `dsh.bundle.patch` aligned
+- [ ] Run the release checks before every version update
+- [ ] Do not add a speculative `discover-plugins.mjs` until a concrete catalog API and consumer are selected
+- [ ] Follow [`community/discovery-plan.md`](discovery-plan.md)
 
----
+## Prepared local materials
 
-## awesome-dsh-plugin PR draft (YAML entry)
-
-File: `awesome-dsh-plugin/data/plugins/dsh-openclaw-memory.yml` (adjust to actual data layout)
-
-```yaml
-name: dsh-openclaw-memory
-description: Shared OpenClaw persona and bounded memory context for DeepSeek Harness, with a safe Markdown editor Sidebar.
-long_description: |
-  Reads the canonical OpenClaw workspace (AGENTS.md, SOUL.md, USER.md, MEMORY.md,
-  memory/YYYY-MM-DD*.md) and injects it as bounded, safe shared context for DSH
-  agents, plus a full Sidebar UI to browse, edit, preview, and search those files.
-repo: https://github.com/zzy-fxxxexxxyxxx/dsh-openclaw-memory
-npm: dsh-openclaw-memory
-version: 0.1.4
-license: MIT
-platform:
-  - web
-tags:
-  - memory
-  - openclaw
-  - persona
-  - shared-context
-  - markdown
-```
-
-## dsh-market Issue draft
-
-```text
-Title: Add dsh-openclaw-memory to dsh-market
-
-Body:
-npm: dsh-openclaw-memory
-version: 0.1.4
-repo: https://github.com/zzy-fxxxexxxyxxx/dsh-openclaw-memory
-dsh.bundle.patch: present (cordis.patch.yml)
-platform: web
-license: MIT
-Description: Shared OpenClaw persona and bounded memory context for DeepSeek Harness.
-```
+- DSH Plugin Hub Issue: [`community/dsh-plugin-hub-issue.md`](dsh-plugin-hub-issue.md)
+- Awesome DSH Plugin entry: [`community/awesome-dsh-plugin.yml`](awesome-dsh-plugin.yml)
+- Official Discussion draft: [`community/discussion-post.md`](discussion-post.md)
+- Screenshot manifest: [`screenshots.json`](../screenshots.json)
