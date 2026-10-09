@@ -4,12 +4,13 @@ Release facts:
 - npm package: `dsh-openclaw-memory@0.1.4` (latest)
 - GitHub repo: `zzy-fxxxexxxyxxx/dsh-openclaw-memory`
 - Git tag: `v0.1.4`
-- Commit: `960bf5c` (discovery materials and promotion drafts; release code remains `ae1449e`)
+- Commit: `2ce8d4e` (submission status and promotion materials; release code remains `ae1449e`)
 - README: bilingual storefront with migration workflow and screenshots
 - Repository description/homepage: configured for discoverability
 - Plugin Hub Issue: https://github.com/dshplugin/dsh-plugin-hub/issues/140 (open, awaiting review)
 - Awesome PR: https://github.com/awesome-dsh-plugin/awesome-dsh-plugin/pull/6998 (open, checks passed, maintainer review pending)
 - Official Discussion: https://github.com/deepseek-ai/deepseek-harness/discussions/9288 (published)
+- DSH Marketplace: repository submission accepted into manual review queue (`ok: true`, `duplicate: false`; listing URL pending review)
 - GitHub Release: https://github.com/zzy-fxxxexxxyxxx/dsh-openclaw-memory/releases/tag/v0.1.4
 - License: MIT
 - `dsh.bundle.patch`: points to `./cordis.patch.yml` (marketplace hard requirement, present)
@@ -26,8 +27,9 @@ Release facts:
 - [ ] Await maintainer review; answer concrete compatibility or install-check questions
 
 ## 3. DSH Marketplace / dsh-market
+- [x] Submit the repository to independent DSH Marketplace review: `ok: true`, `duplicate: false`
+- [ ] Await manual review and record the public listing URL when it exists
 - [ ] `dsh-market` consumes the `awesome-dsh-plugin` registry; verify this listing after PR #6998 merges
-- [ ] Independent DSH Marketplace API submission is blocked temporarily by GitHub rate limiting; repository already has `dsh-plugin` topic and will enter the next automatic sync
 - [ ] Do not open plugin-entry PRs against the `dsh-market` app repository
 - [ ] The separate `DshMarketPlace/dsh-plugins-store` is a store client seeded from the same registry, not a separate manually-submitted directory
 
