@@ -1,92 +1,121 @@
 # dsh-openclaw-memory
 
-- [中文说明（简体中文）](README.zh-CN.md)
+[中文说明（简体中文）](README.zh-CN.md)
 
-A DeepSeek Harness plugin that shares OpenClaw-style persona and bounded memory context with the canonical OpenClaw workspace.
+**Give DeepSeek Harness (DSH) the same personhood and memory as your OpenClaw workspace — one shared set of Markdown files, safely injected, browsable, and editable in the DSH web sidebar.**
 
-## Scope
+`dsh-openclaw-memory` is a DSH plugin that reads the canonical OpenClaw workspace directly and turns its persona files and daily memory (`AGENTS.md`, `SOUL.md`, `USER.md`, `MEMORY.md`, and `memory/YYYY-MM-DD*.md`) into **bounded, safe shared context** for DSH agents — plus a full Sidebar UI to browse, edit, preview, and search those files.
 
-The default root is `/home/sunrise/.openclaw/workspace`. This is intentional: it is the shared OpenClaw workspace, not `/home/sunrise/.openclaw/workspace-main`.
+## ✨ Why it exists
 
-The plugin provides:
+OpenClaw and DSH should share one source of truth. Instead of letting two assistants drift, this plugin makes DSH **read the same workspace OpenClaw uses**, with strict budgets, explicit privacy defaults, and live configuration — so your DSH agents carry the same persona, memory, and memory files you already keep in your OpenClaw `workspace`.
 
-- bootstrap context from six selectable candidate files (`AGENTS.md`, `SOUL.md`, `IDENTITY.md`, `USER.md`, `BOOTSTRAP.md`, and `MEMORY.md`); only existing, readable, enabled files are injected;
-- an independent `includeDailyStartup` switch controls daily memory injection; disabling every bootstrap file and this switch produces an empty automatic context while Sidebar browsing, editing, preview, and search remain available;
-- recent daily context from `memory/YYYY-MM-DD.md` and up to four newest `memory/YYYY-MM-DD-*.md` files per day;
-- bounded keyword retrieval over Markdown memory files;
-- a standard DSH Typert Remote service for listing, reading, searching, conflict-safe editing, live configuration, and exact context preview;
-- a DSH web sidebar tab for configuration, safe Markdown browsing/editing, and per-file truncation inspection; the injection preview has its own scroll area and explicit expand/collapse indicators. Config has its own scroll region, and the editor shows top-level Markdown files separately from a collapsible `memory/` tree. The editor also has a source/preview toggle backed by DSH's native Markdown renderer, previews unsaved text, and only the Save action writes;
+## ✨ What it does
 
-The default context policy is `continuation-skip`: the same snapshot is returned for an agent until a source file changes, and DSH runtime-context projection deduplicates unchanged durable snapshots.
+- **Shared persona + memory injection** — pick any of the six bootstrap candidates (`AGENTS.md`, `SOUL.md`, `IDENTITY.md`, `USER.md`, `BOOTSTRAP.md`, `MEMORY.md`), each with independent per-file and total character budgets.
+- **Bounded daily memory** — recent `memory/YYYY-MM-DD.md` and the four newest `memory/YYYY-MM-DD-*.md` per day, quoted as explicitly untrusted daily notes.
+- **Bounded keyword search** — a bounded `openclaw_memory_search` tool for agents, with per-file and total caps.
+- **Exact context preview** — see **exactly** what will be sent: source size, budget, injected characters, and truncation, per file, in the Sidebar.
+- **A safe Sidebar editor** — VS Code-style file tree (top-level Markdown vs. collapsible `memory/`), source / rendered preview, live `Settings`/`ConfigEditor`, optimistic concurrent-write protection, and per-file truncation checks.
+- **`continuation-skip`** — snapshots stay stable until a source file changes; unchanged durable snapshots are reused, so context doesn't churn.
+- **Live configuration** — all configuration is volatile; live profiles hot-reconcile without a DSH restart. Optimistic revision checks prevent overwriting concurrent edits.
 
-## Privacy Boundary
+## ⚖️ Privacy & security by default
 
-Credential and secret filenames are excluded by default. In particular, `memory/part-of-account.md` is not injected, listed, read, searched, or writable through the UI unless `includeCredentials: true` is explicitly configured. JSON artifacts are not part of the default memory index. Symlinks are ignored.
+- Credential and secret filenames are excluded by default (credential-like names and JSON artifacts are not injected, listed, read, searched, or writable unless you explicitly set `includeCredentials: true`).
+- Only OpenClaw bootstrap Markdown and `memory/**/*.md` are editable; traversal and absolute paths are rejected; symlinks are ignored; reads and writes are capped; writes use an optimistic version check.
+- Shared memory is **workspace data**, not higher-priority instructions. It can contain untrusted text and must not override DSH system policy.
 
-The editor is limited to OpenClaw bootstrap Markdown and `memory/**/*.md`, rejects traversal and absolute paths, caps reads and writes, and uses an optimistic version check before every write.
+## 🚀 Install
 
-Shared memory is workspace data, not higher-priority instructions. Files can contain untrusted text and must not override the DSH system policy.
-
-## Configuration
-
-The bundle patch in `cordis.patch.yml` shows the intended defaults:
-
-```yaml
-root: /home/sunrise/.openclaw/workspace
-contextInjection: continuation-skip
-bootstrapFiles:
-  - AGENTS.md
-  - SOUL.md
-  - IDENTITY.md
-  - USER.md
-  - BOOTSTRAP.md
-  - MEMORY.md
-bootstrapMaxChars: 20000
-bootstrapTotalMaxChars: 60000
-userMaxChars: 4000
-dailyMemoryDays: 2
-dailyFileMaxBytes: 16384
-dailyFileMaxChars: 1200
-dailyTotalMaxChars: 2800
-timeZone: Asia/Shanghai
-includeDailyStartup: true
-includeCredentials: false
-maxFileChars: 200000
-```
-
-`contextInjection` accepts `always`, `continuation-skip`, or `never`. `never` disables both context and the model-facing search tool; the Remote file API remains owned by the service only when the plugin is loaded with the corresponding profile.
-
-The Sidebar configuration form edits all fields through DSH `Settings`/`ConfigEditor`. These fields are volatile and live profiles hot-reconcile them without a DSH restart; context snapshots and the search tool observe the new values. An optimistic revision check prevents overwriting concurrent profile edits. If a deployment cannot reconcile live configuration, the UI reports that a restart is required. Disabling and re-enabling the plugin through the DSH manager disposes and restores its context, tool, Remote service, Sidebar, locale, and caches through Cordis ownership.
-
-## OpenClaw Workspace Caveat
-
-OpenClaw currently has a `main` agent configuration that uses `/home/sunrise/.openclaw/workspace-main`. Installing this plugin does not silently change OpenClaw production configuration. True runtime sharing requires a separately reviewed OpenClaw workspace change to `/home/sunrise/.openclaw/workspace`.
-
-This package reads and edits the shared files; it does not copy or migrate them.
-
-## Development
-
-The isolated test suite uses only temporary directories:
+Install into a DSH profile (replacing the placeholder profile name as needed):
 
 ```sh
-npm test
-node --check index.js
-node --check client.js
-node --check remote.js
-node --check typert.host.js
+dsh plugin --profile web add dsh-openclaw-memory
 ```
 
-For local development without installing DSH globally, link or install the matching DSH `0.2.0-rc.2` packages. Do not add this package to the production profile while testing.
+For a local checkout during development:
 
-## Installation and Publication
+```sh
+dsh plugin --profile web add link:/path/to/dsh-openclaw-memory
+```
 
-1. Review the canonical root and privacy settings in `cordis.patch.yml`.
-2. Build and test this package in an isolated checkout.
-3. Run `npm pack --dry-run` and review the package contents.
-4. For a release, update `package.json` and commit the version bump.
-5. Create and push a matching version tag, for example `git tag v0.1.1 && git push origin v0.1.1`.
-6. `.github/workflows/publish.yml` verifies the tag, runs the test and syntax checks, previews the package, and publishes with npm Trusted Publishing/OIDC and provenance.
+Pair it with the intended defaults in `cordis.patch.yml`:
 
-The publish workflow runs only for `v*` tags. It does not use a long-lived npm token. Configure npm Trusted Publishing for the `zzy-fxxxexxxyxxx/dsh-openclaw-memory` repository and the `publish.yml` workflow before creating a release tag.
+```yaml
+- id: openclaw-memory
+  name: dsh-openclaw-memory
+  config:
+    root: /home/sunrise/.openclaw/workspace
+    contextInjection: continuation-skip
+    bootstrapFiles: [AGENTS.md, SOUL.md, IDENTITY.md, USER.md, BOOTSTRAP.md, MEMORY.md]
+    bootstrapMaxChars: 20000
+    bootstrapTotalMaxChars: 60000
+    userMaxChars: 4000
+    dailyMemoryDays: 2
+    dailyFileMaxBytes: 16384
+    dailyFileMaxChars: 1200
+    dailyTotalMaxChars: 2800
+    timeZone: Asia/Shanghai
+    includeDailyStartup: true
+    includeCredentials: false
+    maxFileChars: 200000
+```
 
-No production profile, OpenClaw configuration, DSH service, or real memory file is modified by the package release workflow itself.
+`contextInjection` accepts `always`, `continuation-skip`, or `never`.
+
+## 📸 See it in action
+
+> Screenshots will appear here (Sidebar overview, file tree, preview, configuration panel). Images are being added — drop the final screenshots below this section.
+
+## ✅ Quick smoke check (works headlessly)
+
+Outside a browser you can exercise the core library directly:
+
+```sh
+node --input-type=module - <<'NODE'
+import { buildContextSnapshot, loadBootstrap } from 'dsh-openclaw-memory/memory-core';
+const snapshot = await buildContextSnapshot('/home/sunrise/.openclaw/workspace', { bootstrapFiles: ['MEMORY.md'] });
+console.log(snapshot);
+console.log((await loadBootstrap('/home/sunrise/.openclaw/workspace', { bootstrapFiles: ['MEMORY.md'] })).map((f) => f.path));
+NODE
+```
+
+## 📦 Configuration reference
+
+All of the fields in `cordis.patch.yml` can also be edited live from the Sidebar. See the in-repo `cordis.patch.yml` for the canonical defaults.
+
+## 🧱 OpenClaw workspace caveat
+
+This plugin **reads** from the canonical OpenClaw workspace (default `/home/sunrise/.openclaw/workspace`). OpenClaw's `main` agent may still point at `/home/sunrise/.openclaw/workspace-main`; this plugin never changes that. For true runtime sharing, review and point OpenClaw at the same workspace yourself.
+
+This package only reads and edits shared files — it never copies, migrates, or deletes OpenClaw files.
+
+## 🧪 Improvements & tests
+
+- The entire source is **TypeScript**, organized by responsibility under `src/` (core config/paths/bootstrap/daily/documents/context, service, remote/typert protocol, client Sidebar).
+- Root-level `.js` files are thin compatibility entrypoints; `npm run build` compiles to `dist/` and bundles the client.
+- 14 automated tests cover behavior plus protocol exports, declarations, and the DSH client loader contract.
+- Tests use only temporary directories — never the real OpenClaw workspace or production profile.
+
+```sh
+npm run typecheck
+npm test
+npm pack --dry-run
+```
+
+## 🗺 Roadmap
+
+- More daily memory sources and timezone-aware aggregation
+- Search relevance tuning and faceted filters
+- Extra community distributions and marketplace submissions
+
+## 🤝 Community & support
+
+- Report issues / request features: [GitHub Issues](https://github.com/zzy-fxxxexxxyxxx/dsh-openclaw-memory/issues)
+- DSH Plugin Hub: [dsh-plugin.org/zh/submit](https://dsh-plugin.org/zh/submit)
+- Discussions welcome on the DSH repository's *Show Your Plugins!* category.
+
+## 📄 License
+
+MIT

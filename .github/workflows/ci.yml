@@ -28,10 +28,14 @@ jobs:
       - name: Run tests
         run: npm test
 
+      - name: Typecheck source
+        run: npm run typecheck
+
       - name: Check JavaScript syntax
         run: |
           node --check index.js
           node --check client.js
+          node --check memory-core.js
           node --check remote.js
           node --check typert.host.js
 
