@@ -4,48 +4,46 @@ Release facts:
 - npm package: `dsh-openclaw-memory@0.1.4` (latest)
 - GitHub repo: `zzy-fxxxexxxyxxx/dsh-openclaw-memory`
 - Git tag: `v0.1.4`
-- Commit: `8a7603e` (discovery materials; release code remains `ae1449e`)
+- Commit: `960bf5c` (discovery materials and promotion drafts; release code remains `ae1449e`)
 - README: bilingual storefront with migration workflow and screenshots
+- Repository description/homepage: configured for discoverability
 - Plugin Hub Issue: https://github.com/dshplugin/dsh-plugin-hub/issues/140 (open, awaiting review)
-- Awesome PR: https://github.com/awesome-dsh-plugin/awesome-dsh-plugin/pull/6998 (open, CI pending)
+- Awesome PR: https://github.com/awesome-dsh-plugin/awesome-dsh-plugin/pull/6998 (open, checks passed, maintainer review pending)
 - Official Discussion: https://github.com/deepseek-ai/deepseek-harness/discussions/9288 (published)
+- GitHub Release: https://github.com/zzy-fxxxexxxyxxx/dsh-openclaw-memory/releases/tag/v0.1.4
 - License: MIT
 - `dsh.bundle.patch`: points to `./cordis.patch.yml` (marketplace hard requirement, present)
 - `screenshots.json`: declares four GitHub-hosted screenshots for downstream storefronts
 - DSH market path: submit the Awesome DSH Plugin entry; `dsh-market` consumes that registry and does not accept plugin-entry PRs
 
-## 1. GitHub discoverability (needs authorization)
-- [x] Add GitHub topic `dsh-plugin` to repo (also add `openclaw`, `memory`, `dsh`, `plugin-if you like`)
-- [ ] Keep repo active (commits + tags)
-- [ ] Optional: add a socially shareable description to repo
+## 1. GitHub discoverability
+- [x] Add GitHub topics `dsh-plugin`, `openclaw`, `memory-plugin`, `dsh`, `deepseek-harness`
+- [x] Set a concise repository description and npm homepage
+- [x] Publish the `v0.1.4` GitHub Release
 
 ## 2. DSH Plugin Hub
-- [ ] Submit at https://dsh-plugin.org/zh/submit or create the prepared Issue from [`community/dsh-plugin-hub-issue.md`](dsh-plugin-hub-issue.md)
-- [ ] Check `build-dsh-plugin` or the Hub's concrete install precheck before submission
-- [ ] Record the resulting Issue URL and review status
+- [x] Create submission Issue: https://github.com/dshplugin/dsh-plugin-hub/issues/140
+- [ ] Await maintainer review; answer concrete compatibility or install-check questions
 
-## 3. DSH-Store / dsh-market
-- [ ] The `dsh-market` README says its catalog comes from `awesome-dsh-plugin`; do not open a plugin-entry PR against `dsh-market`
-- [ ] After the Awesome PR merges, verify the entry appears in dsh-market after its refresh cycle
-- [ ] The separate `DshMarketPlace/dsh-plugins-store` project has no documented public plugin submission form; investigate only if that specific catalog is desired
+## 3. DSH Marketplace / dsh-market
+- [ ] `dsh-market` consumes the `awesome-dsh-plugin` registry; verify this listing after PR #6998 merges
+- [ ] Independent DSH Marketplace API submission is blocked temporarily by GitHub rate limiting; repository already has `dsh-plugin` topic and will enter the next automatic sync
+- [ ] Do not open plugin-entry PRs against the `dsh-market` app repository
+- [ ] The separate `DshMarketPlace/dsh-plugins-store` is a store client seeded from the same registry, not a separate manually-submitted directory
 
 ## 4. awesome-dsh-plugin
-- [ ] Open a PR adding exactly one file: `data/plugins/zzy-fxxxexxxyxxx__dsh-openclaw-memory.yml`
-- [ ] Use the prepared local entry in [`community/awesome-dsh-plugin.yml`](awesome-dsh-plugin.yml)
-- [ ] Category: `memory`
-- [ ] Do not edit generated README files or add a hand-written `npm:` field
-- [ ] This is a PR to an external repo and needs account authorization
+- [x] Open PR adding exactly one file: `data/plugins/zzy-fxxxexxxyxxx__dsh-openclaw-memory.yml`
+- [x] Automated checks passed: https://github.com/awesome-dsh-plugin/awesome-dsh-plugin/pull/6998
+- [ ] Await maintainer review and merge; do not edit generated README files
 
 ## 5. Official DSH Discussions
-- [ ] Post under the `Show Your Plugins!` category in the DeepSeek Harness repository
-- [ ] Use the prepared copy in [`community/discussion-post.md`](discussion-post.md)
-- [ ] Record the published Discussion URL
+- [x] Publish in `Show Your Plugins!`: https://github.com/deepseek-ai/deepseek-harness/discussions/9288
 
 ## 6. Community interactions
-- [ ] Publish a tailored Chinese post in LINUX DO or another relevant Chinese developer community
-- [ ] Publish a tailored English post in a relevant Reddit or Discord channel, only where plugin/tool promotion is allowed
+- [ ] Publish the Chinese draft in LINUX DO or another relevant Chinese developer community after selecting an allowed board/thread
+- [ ] Publish the English draft in a relevant Reddit or Discord channel only where plugin/tool promotion is allowed
 - [ ] Keep external posts linked to the canonical README and npm package; do not paste private workspace content
-- [ ] Optional: publish the longer migration tutorial after the first community feedback
+- [ ] Optional: publish a longer migration tutorial after the first community feedback
 
 ## 7. Long-term discovery
 - [ ] Keep GitHub topics, release tags, npm `latest`, README install command, screenshots, and `dsh.bundle.patch` aligned
